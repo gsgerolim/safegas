@@ -1,0 +1,98 @@
+/* ==================================================
+   ESTILO GERAL DO SITE
+   ================================================== */
+
+body {
+  background-color: #f3f5f8;
+  color: #212529;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Cartões principais */
+.painel {
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Valor numérico dos sensores */
+.valor-sensor {
+  font-size: clamp(2.5rem, 7vw, 3.5rem);
+  font-weight: 700;
+  margin: 15px 0;
+  overflow-wrap: anywhere;
+}
+
+/* Status geral do ambiente */
+.status-ambiente {
+  padding: 18px 12px;
+  border-radius: 12px;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 700;
+}
+
+/* Ainda não recebemos informações */
+.status-neutro {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+/* Ambiente normal */
+.status-normal {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+/* Ambiente em alerta */
+.status-alerta {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+/* Aguardando conexão ou dados */
+.status-aguardando {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+/* Cartão interno dos atuadores */
+.atuador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 100%;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+}
+
+/* Histórico */
+.historico-vazio {
+  padding: 20px;
+  text-align: center;
+  color: #6c757d;
+}
+
+/* Cada evento registrado */
+.evento-horario {
+  min-width: 75px;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.evento-mensagem {
+  overflow-wrap: anywhere;
+}
+
+/* Em telas pequenas */
+@media (max-width: 576px) {
+  main.container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .atuador {
+    padding: 12px;
+  }
+}
