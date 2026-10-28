@@ -185,7 +185,86 @@
             </div>
         </section>
 
-        <!-- 6. Histórico -->
+        
+        <!-- 6. Configuração dos limites -->
+        <section class="card painel mb-4" id="configuracaoLimites">
+            <div class="card-body">
+                <h2 class="h5 mb-3">
+                    <i class="bi bi-sliders"></i>
+                    6. Configuração dos limites
+                </h2>
+
+                <p class="text-secondary">
+                    Defina os valores que ativam os alertas dos sensores.
+                </p>
+
+                <form id="formLimites">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label for="limiteGas" class="form-label">
+                                Limite de gás (MQ-5)
+                            </label>
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="limiteGas"
+                                min="0"
+                                max="4095"
+                                step="1"
+                                value="2000"
+                                required
+                            >
+
+                            <div class="form-text">
+                                Valor entre 0 e 4095.
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="limiteFumaca" class="form-label">
+                                Limite de fumaça (Sharp)
+                            </label>
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="limiteFumaca"
+                                min="0"
+                                max="4095"
+                                step="1"
+                                value="1000"
+                                required
+                            >
+
+                            <div class="form-text">
+                                Valor entre 0 e 4095.
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary mt-3"
+                        id="btnSalvarLimites"
+                    >
+                        <i class="bi bi-send"></i>
+                        Enviar limites ao ESP32
+                    </button>
+
+                    <p
+                        id="statusLimites"
+                        class="small mt-3 mb-0"
+                        role="status"
+                        aria-live="polite"
+                    >
+                        Conecte o ESP32 para enviar os limites.
+                    </p>
+                </form>
+            </div>
+        </section>
+
+        <!-- 7. Histórico -->
         <section class="card painel mb-4">
             <div class="card-body">
 

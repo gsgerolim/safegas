@@ -6,8 +6,8 @@
 
 // Limites de exibição.
 // Devem ser iguais aos limites configurados no ESP32.
-const LIMITE_GAS = 2000;
-const LIMITE_FUMACA = 1000;
+let LIMITE_GAS = 2000;
+let LIMITE_FUMACA = 1000;
 
 // true = permite testar a interface com dados simulados.
 const PERMITIR_DEMONSTRACAO = true;
@@ -71,6 +71,12 @@ const elementos = {
 
   listaHistorico: document.getElementById("listaHistorico"),
   historicoVazio: document.getElementById("historicoVazio"),
+
+    formLimites: document.getElementById("formLimites"),
+  limiteGas: document.getElementById("limiteGas"),
+  limiteFumaca: document.getElementById("limiteFumaca"),
+  statusLimites: document.getElementById("statusLimites"),
+  btnSalvarLimites: document.getElementById("btnSalvarLimites"),
 };
 
 /* =========================================================
@@ -85,6 +91,7 @@ function iniciarSite() {
   elementos.btnDesconectar.addEventListener("click", desconectarBluetooth);
   elementos.btnDemonstracao.addEventListener("click", alternarDemonstracao);
   elementos.btnLimparHistorico.addEventListener("click", limparHistorico);
+    elementos.formLimites.addEventListener("submit", enviarLimites);
 
   // Informa se o navegador suporta Web Bluetooth.
   if (!navigator.bluetooth) {
@@ -96,6 +103,94 @@ function iniciarSite() {
   registrarEvento("Sistema iniciado. Aguardando conexão.");
   atualizarInterfaceConexao("desconectado");
 }
+
+
+/* =========================================================
+   CONFIGURAÇÃO DOS LIMITES
+   ========================================================= */
+
+function mostrarStatusLimites(mensagem, tipo = "") {
+  elementos.statusLimites.textContent = mensagem;
+
+  elementos.statusLimites.className = "small mt-3 mb-0";
+
+  if (tipo) {
+    elementos.statusLimites.classList.add(tipo);
+  }
+}
+
+async function enviarLimites(evento) {
+  evento.preventDefault();
+
+  const novoLimiteGas = Number(elementos.limiteGas.value);
+  const novoLimiteFumaca = Number(elementos.limiteFumaca.value);
+
+  // Confere se os valores são inteiros entre 0 e 4095.
+  const valoresValidos =
+    Number.isInteger(novoLimiteGas) &&
+    Number.isInteger(novoLimiteFumaca) &&
+    novoLimiteGas >= 0 &&
+    novoLimiteGas <= 4095 &&
+    novoLimiteFumaca >= 0 &&
+    novoLimiteFumaca <= 4095;
+
+  if (!valoresValidos) {
+    mostrarStatusLimites(
+      "Informe valores inteiros entre 0 e 4095.",
+      "erro"
+    );
+    return;
+  }
+
+  if (!conectado || !caracteristicaBLE) {
+    mostrarStatusLimites(
+      "Conecte o ESP32 antes de enviar os limites.",
+      "erro"
+    );
+    return;
+  }
+
+  // O firmware precisa permitir escrita na característica BLE.
+  if (!caracteristicaBLE.properties.write &&
+      !caracteristicaBLE.properties.writeWithoutResponse) {
+    mostrarStatusLimites(
+      "O ESP32 ainda não permite receber configurações. Atualize o firmware.",
+      "erro"
+    );
+    return;
+  }
+
+  // Protocolo combinado com o firmware.
+  const comando = `CONFIG;${novoLimiteGas};${novoLimiteFumaca}`;
+
+  try {
+    elementos.btnSalvarLimites.disabled = true;
+
+    mostrarStatusLimites("Enviando configurações ao ESP32...");
+
+    const bytes = new TextEncoder().encode(comando);
+
+    if (caracteristicaBLE.properties.write) {
+      await caracteristicaBLE.writeValueWithResponse(bytes);
+    } else {
+      await caracteristicaBLE.writeValueWithoutResponse(bytes);
+    }
+
+    mostrarStatusLimites(
+      "Comando enviado. Aguardando confirmação do ESP32..."
+    );
+  } catch (erro) {
+    console.error("Erro ao enviar limites:", erro);
+
+    mostrarStatusLimites(
+      "Não foi possível enviar os limites. Verifique a conexão BLE.",
+      "erro"
+    );
+  } finally {
+    elementos.btnSalvarLimites.disabled = false;
+  }
+}
+
 
 /* =========================================================
    CONEXÃO BLUETOOTH
@@ -201,6 +296,45 @@ function receberDadosBLE(evento) {
 
 function processarMensagem(mensagem) {
   const partes = mensagem.split(";");
+
+  
+  // Confirmação dos limites recebida do ESP32.
+  if (partes[0] === "CONFIG_OK" && partes.length >= 3) {
+    const gasConfirmado = Number(partes[1]);
+    const fumacaConfirmada = Number(partes[2]);
+
+    if (
+      Number.isInteger(gasConfirmado) &&
+      Number.isInteger(fumacaConfirmada) &&
+      gasConfirmado >= 0 &&
+      gasConfirmado <= 4095 &&
+      fumacaConfirmada >= 0 &&
+      fumacaConfirmada <= 4095
+    ) {
+      LIMITE_GAS = gasConfirmado;
+      LIMITE_FUMACA = fumacaConfirmada;
+
+      elementos.limiteGas.value = gasConfirmado;
+      elementos.limiteFumaca.value = fumacaConfirmada;
+
+      mostrarStatusLimites(
+        `Limites confirmados pelo ESP32: gás ${gasConfirmado} e fumaça ${fumacaConfirmada}.`,
+        "sucesso"
+      );
+
+      registrarEvento(
+        `Limites atualizados: gás ${gasConfirmado}, fumaça ${fumacaConfirmada}.`
+      );
+    } else {
+      mostrarStatusLimites(
+        "O ESP32 enviou uma confirmação inválida.",
+        "erro"
+      );
+    }
+
+    return;
+  }
+
 
   if (partes.length === 0) {
     return;

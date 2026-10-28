@@ -96,3 +96,33 @@ body {
     padding: 12px;
   }
 }
+
+
+/* ==================================================
+   CONFIGURAÇÃO DOS LIMITES
+   ================================================== */
+
+#configuracaoLimites .form-label {
+  font-weight: 600;
+}
+
+#configuracaoLimites .form-control {
+  min-height: 44px;
+}
+
+#btnSalvarLimites {
+  min-height: 44px;
+  font-weight: 600;
+}
+
+#statusLimites {
+  overflow-wrap: anywhere;
+}
+
+#statusLimites.sucesso {
+  color: #198754;
+}
+
+#statusLimites.erro {
+  color: #dc3545;
+}
